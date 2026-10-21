@@ -63,6 +63,11 @@ const kinds = [
       data-msg-error={t('contact.error')}
       data-msg-rate={t('contact.rateLimited')}
       data-msg-invalid={t('contact.invalid')}
+      data-err-name={t('contact.err.name')}
+      data-err-email={t('contact.err.email')}
+      data-err-kind={t('contact.err.kind')}
+      data-err-message-short={t('contact.err.messageShort')}
+      data-err-message-long={t('contact.err.messageLong')}
       novalidate
     >
       <label>
@@ -252,6 +257,26 @@ const kinds = [
     border-color: var(--accent);
   }
 
+  /* Campo com erro (marcado pelo script com aria-invalid) */
+  input[aria-invalid='true'],
+  textarea[aria-invalid='true'] {
+    border-color: #fca5a5;
+  }
+
+  fieldset[aria-invalid='true'] .chip span {
+    border-color: #fca5a5;
+  }
+
+  /* Preenchimento automático do navegador: mantém o fundo escuro em vez do azul padrão */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text);
+    caret-color: var(--text);
+    box-shadow: 0 0 0 1000px var(--bg) inset;
+    transition: background-color 9999s ease-out;
+  }
+
   .form .btn {
     justify-self: start;
   }
@@ -265,6 +290,7 @@ const kinds = [
     min-height: 1.4em;
     font-size: 0.8125rem;
     color: var(--muted);
+    white-space: pre-line; /* um erro por linha */
   }
 
   .status[data-kind='success'] {

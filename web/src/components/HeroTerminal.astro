@@ -1,0 +1,197 @@
+---
+// Janela de terminal do hero, exibida enquanto o vídeo de apresentação não existe (site.video.mp4 = null).
+// Os comandos são "digitados" só com CSS: cada linha de comando ganha o número de caracteres (--n)
+// e o momento em que começa (--delay); as saídas aparecem logo depois. Sem JavaScript.
+// prefers-reduced-motion: tudo aparece de uma vez.
+import type { Lang } from '../config';
+import { useTranslations } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+type Line = { kind: 'cmd' | 'out' | 'ok'; text: string };
+
+const script: Line[] = [
+  { kind: 'cmd', text: 'whoami' },
+  { kind: 'out', text: t('terminal.whoami') },
+  { kind: 'cmd', text: 'cat stack.txt' },
+  { kind: 'out', text: 'C# · .NET · SQL Server · Angular · TypeScript · Docker' },
+  { kind: 'cmd', text: t('terminal.runCmd') },
+  { kind: 'out', text: t('terminal.runOut') },
+  { kind: 'ok', text: t('terminal.runOk') },
+];
+
+// Linha do tempo da animação (ms)
+const CHAR_MS = 45;
+const PAUSE_MS = 350;
+let clock = 400;
+const lines = script.map((line) => {
+  const delay = clock;
+  const duration = line.kind === 'cmd' ? line.text.length * CHAR_MS : 0;
+  clock += duration + PAUSE_MS;
+  return { ...line, delay, duration };
+});
+const cursorDelay = clock;
+---
+
+<figure class="terminal" aria-label={t('terminal.label')}>
+  <div class="titlebar" aria-hidden="true">
+    <span class="dots"><i></i><i></i><i></i></span>
+    <span class="mono title">bash — ~/daniel-soares</span>
+  </div>
+
+  <div class="screen mono">
+    {
+      lines.map((l) =>
+        l.kind === 'cmd' ? (
+          <p class="line">
+            <span class="prompt">$</span>
+            <span class="typed" style={`--n:${l.text.length};--delay:${l.delay}ms;--dur:${l.duration}ms`}>
+              {l.text}
+            </span>
+          </p>
+        ) : (
+          <p class={`line out ${l.kind}`} style={`--delay:${l.delay}ms`}>
+            {l.kind === 'ok' && <span class="check">✓ </span>}
+            {l.text}
+          </p>
+        )
+      )
+    }
+    <p class="line out" style={`--delay:${cursorDelay}ms`}>
+      <span class="prompt">$</span> <span class="cursor" aria-hidden="true"></span>
+    </p>
+  </div>
+</figure>
+
+<style>
+  .terminal {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.7);
+  }
+
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 38px;
+    padding-inline: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+
+  .title {
+    font-size: 0.75rem;
+    color: var(--subtle);
+  }
+
+  /* Mesma proporção do vídeo, para o layout não mudar quando ele chegar */
+  .screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    aspect-ratio: 16 / 9;
+    padding: clamp(18px, 3.5vw, 34px);
+    font-size: clamp(0.75rem, 1.15vw, 0.875rem);
+    line-height: 1.5;
+    background:
+      radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%),
+      #0a0b0e;
+  }
+
+  .line {
+    display: flex;
+    gap: 0.6ch;
+    margin: 0;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .prompt {
+    color: var(--accent);
+  }
+
+  .out {
+    color: var(--muted);
+    white-space: normal;
+    opacity: 0;
+    animation: show 1ms var(--delay) forwards;
+  }
+
+  .ok,
+  .check {
+    color: var(--accent);
+  }
+
+  /* Digitação: a largura cresce de 0 até N caracteres, um por vez */
+  .typed {
+    display: inline-block;
+    overflow: hidden;
+    width: 0;
+    animation: type var(--dur) steps(var(--n), end) var(--delay) forwards;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.1em;
+    vertical-align: text-bottom;
+    background: var(--accent);
+    animation: blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes type {
+    to {
+      width: calc(var(--n) * 1ch);
+    }
+  }
+
+  @keyframes show {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* Menos movimento: mostra o resultado final, sem digitação */
+  @media (prefers-reduced-motion: reduce) {
+    .typed {
+      width: auto;
+      animation: none;
+    }
+
+    .out {
+      opacity: 1;
+      animation: none;
+    }
+
+    .cursor {
+      animation: none;
+    }
+  }
+</style>

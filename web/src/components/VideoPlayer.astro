@@ -6,7 +6,7 @@
 // - botões "ativar som" (em destaque) e "pausar" (acessibilidade)
 // - legendas ligadas por padrão, já que o vídeo começa sem som
 // - prefers-reduced-motion: sem autoplay
-// - enquanto o vídeo não existir (site.video.mp4 = null), mostra um placeholder no mesmo espaço
+// Só é usado quando site.video.mp4 existe; antes disso o hero mostra HeroTerminal.astro.
 import { site, type Lang } from '../config';
 import { useTranslations } from '../i18n/ui';
 
@@ -26,7 +26,7 @@ const { mp4, webm, poster, captions } = site.video;
   </div>
 
   {
-    mp4 ? (
+    mp4 && (
       <div class="player" data-video-player>
         <video
           autoplay
@@ -95,17 +95,6 @@ const { mp4, webm, poster, captions } = site.video;
           </button>
         </div>
       </div>
-    ) : (
-      <div class="placeholder">
-        <p class="mono prompt">
-          <span class="accent">$</span> ./apresentacao.sh
-        </p>
-        <p class="ph-title">{t('video.placeholderTitle')}</p>
-        <p class="ph-text">{t('video.placeholderText')}</p>
-        <p class="mono status">
-          [<span class="bar" aria-hidden="true"></span>] rec…
-        </p>
-      </div>
     )
   }
 </figure>
@@ -156,8 +145,7 @@ const { mp4, webm, poster, captions } = site.video;
     position: relative;
   }
 
-  video,
-  .placeholder {
+  video {
     width: 100%;
     aspect-ratio: 16 / 9;
     background: #0a0b0e;
@@ -215,73 +203,5 @@ const { mp4, webm, poster, captions } = site.video;
 
   [data-paused='true'] .i-play {
     display: block;
-  }
-
-  .placeholder {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 10px;
-    padding: clamp(20px, 5vw, 44px);
-    background:
-      radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%),
-      #0a0b0e;
-  }
-
-  .prompt {
-    font-size: 0.8125rem;
-    color: var(--subtle);
-  }
-
-  .accent {
-    color: var(--accent);
-  }
-
-  .ph-title {
-    font-family: var(--font-serif);
-    font-size: clamp(1.6rem, 3vw, 2.1rem);
-    line-height: 1.1;
-    color: var(--heading);
-  }
-
-  .ph-text {
-    max-width: 34ch;
-    color: var(--muted);
-    font-size: 0.9375rem;
-  }
-
-  .status {
-    margin-top: 6px;
-    font-size: 0.75rem;
-    color: var(--subtle);
-  }
-
-  .bar {
-    position: relative;
-    display: inline-block;
-    width: 80px;
-    height: 0.6em;
-    margin-inline: 4px;
-    overflow: hidden;
-    background: var(--border-strong);
-    vertical-align: middle;
-  }
-
-  .bar::after {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 40%;
-    background: var(--accent);
-    animation: rec 2.4s ease-in-out infinite alternate;
-  }
-
-  @keyframes rec {
-    from {
-      width: 15%;
-    }
-    to {
-      width: 85%;
-    }
   }
 </style>

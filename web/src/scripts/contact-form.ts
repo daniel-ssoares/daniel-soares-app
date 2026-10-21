@@ -3,6 +3,29 @@
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const KINDS = ['project', 'proposal', 'other'];
+const MESSAGE_MIN = 10;
+const MESSAGE_MAX = 2000;
+
+type Payload = { name: string; email: string; kind: string; message: string };
+
+/**
+ * Valida com as mesmas regras da API (Portfolio.Api/Contact/ContactValidator.cs)
+ * e devolve um erro por campo, já com o texto traduzido.
+ */
+function validate(p: Payload, msg: DOMStringMap): { field: string; text: string }[] {
+  const errors: { field: string; text: string }[] = [];
+  const fill = (template: string | undefined, n: number) => (template ?? '').replace('{n}', String(n));
+
+  if (p.name.length < 2 || p.name.length > 120) errors.push({ field: 'name', text: msg.errName ?? '' });
+  if (!EMAIL_RE.test(p.email) || p.email.length > 200) errors.push({ field: 'email', text: msg.errEmail ?? '' });
+  if (!KINDS.includes(p.kind)) errors.push({ field: 'kind', text: msg.errKind ?? '' });
+  if (p.message.length < MESSAGE_MIN)
+    errors.push({ field: 'message', text: fill(msg.errMessageShort, MESSAGE_MIN - p.message.length) });
+  if (p.message.length > MESSAGE_MAX)
+    errors.push({ field: 'message', text: fill(msg.errMessageLong, p.message.length - MESSAGE_MAX) });
+
+  return errors;
+}
 
 export function setupContactForm(form: HTMLFormElement) {
   const status = form.querySelector<HTMLElement>('.status')!;
@@ -13,6 +36,18 @@ export function setupContactForm(form: HTMLFormElement) {
     status.textContent = text ?? '';
     status.dataset.kind = kind;
   };
+
+  // Campo (ou grupo de rádios) que recebe a borda vermelha
+  const fieldElement = (field: string) =>
+    field === 'kind' ? form.querySelector<HTMLElement>('fieldset.kind') : form.querySelector<HTMLElement>(`[name="${field}"]`);
+
+  const clearInvalid = () => form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+
+  // O erro de um campo some assim que a pessoa volta a mexer nele
+  form.addEventListener('input', (event) => {
+    const target = event.target as HTMLElement;
+    (target.closest('fieldset') ?? target).removeAttribute('aria-invalid');
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -27,18 +62,13 @@ export function setupContactForm(form: HTMLFormElement) {
       lang: msg.lang ?? 'pt',
     };
 
-    // Mesmas regras da API (Portfolio.Api/Contact/ContactValidator.cs)
-    const valid =
-      payload.name.length >= 2 &&
-      payload.name.length <= 120 &&
-      EMAIL_RE.test(payload.email) &&
-      payload.email.length <= 200 &&
-      KINDS.includes(payload.kind) &&
-      payload.message.length >= 10 &&
-      payload.message.length <= 2000;
-
-    if (!valid) {
-      show(msg.msgInvalid, 'error');
+    clearInvalid();
+    const errors = validate(payload, msg);
+    if (errors.length > 0) {
+      for (const { field } of errors) fieldElement(field)?.setAttribute('aria-invalid', 'true');
+      show(errors.map((e) => e.text).join('\n'), 'error');
+      const first = fieldElement(errors[0].field);
+      (first?.matches('fieldset') ? first.querySelector<HTMLElement>('input') : first)?.focus();
       return;
     }
 

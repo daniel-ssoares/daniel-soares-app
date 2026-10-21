@@ -1,9 +1,10 @@
 ---
-// Hero: $ whoami, título, resumo, botões e o vídeo de apresentação à direita.
+// Hero: $ whoami, título, resumo, botões e, à direita, o vídeo de apresentação (ou a janela de terminal).
 // No celular empilha: texto em cima, vídeo embaixo.
-import type { Lang } from '../config';
+import { site, type Lang } from '../config';
 import { routes, useTranslations } from '../i18n/ui';
 import VideoPlayer from './VideoPlayer.astro';
+import HeroTerminal from './HeroTerminal.astro';
 
 interface Props {
   lang: Lang;
@@ -28,7 +29,8 @@ const t = useTranslations(lang);
   </div>
 
   <div class="media">
-    <VideoPlayer lang={lang} />
+    {/* Vídeo de apresentação quando existir; até lá, a janela de terminal */}
+    {site.video.mp4 ? <VideoPlayer lang={lang} /> : <HeroTerminal lang={lang} />}
   </div>
 </section>
 
