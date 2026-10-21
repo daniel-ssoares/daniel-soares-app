@@ -1,0 +1,57 @@
+---
+// Rodapé: © e ícones de GitHub e LinkedIn.
+import { site, type Lang } from '../config';
+import { useTranslations } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<footer class="footer">
+  <div class="container row">
+    <p>{t('footer.rights')}</p>
+
+    <span class="social">
+      <a href={site.contact.github} target="_blank" rel="noopener noreferrer"><Icon name="github" size={18} label="GitHub" /></a>
+      <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer"><Icon name="linkedin" size={18} label="LinkedIn" /></a>
+    </span>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding-block: 24px;
+    font-size: 0.8125rem;
+    color: var(--subtle);
+  }
+
+  .social {
+    display: flex;
+    gap: 16px;
+  }
+
+  a {
+    display: inline-flex;
+    color: var(--subtle);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  a:hover {
+    color: var(--accent);
+  }
+</style>

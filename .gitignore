@@ -1,0 +1,27 @@
+# Node / Astro
+node_modules/
+web/dist/
+web/.astro/
+
+# .NET
+bin/
+obj/
+*.user
+TestResults/
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Editores / SO
+.vs/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Documentos internos — não versionar
+PORTFOLIO_BRIEF.md
+NOTAS.md
+.local/

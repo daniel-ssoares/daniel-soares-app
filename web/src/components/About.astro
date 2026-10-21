@@ -1,0 +1,129 @@
+---
+// Seção "Sobre" ($ cat sobre.md): foto, texto pessoal curto e links para currículo e LinkedIn.
+// Experiência e formação NÃO aparecem no site (ficam no currículo e no LinkedIn).
+import { site, type Lang } from '../config';
+import { useTranslations } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const cv = site.cv[lang];
+const personal = t('about.personal');
+---
+
+<section id="sobre" class="container section" aria-labelledby="about-title">
+  <span class="cmd">{t('about.cmd')}</span>
+
+  <div class="layout">
+    <figure class="photo">
+      {
+        site.photo ? (
+          <img src={site.photo} alt={t('about.photoAlt')} width="480" height="600" loading="lazy" decoding="async" />
+        ) : (
+          <div class="placeholder" role="img" aria-label={t('about.photoAlt')}>
+            <span class="mono">DS</span>
+          </div>
+        )
+      }
+    </figure>
+
+    <div class="text">
+      <h2 id="about-title" class="section-title">
+        {t('about.title')} <em>{t('about.titleItalic')}</em>
+      </h2>
+      <p>{t('about.p1')}</p>
+      {personal && <p>{personal}</p>}
+
+      <div class="actions">
+        {
+          cv ? (
+            <a class="btn btn-primary" href={cv} download={lang === 'pt' ? 'Daniel_Soares_CV.pdf' : 'Daniel_Soares_Resume.pdf'}>
+              <Icon name="download" size={15} />
+              {t('about.cv')}
+            </a>
+          ) : (
+            <span class="btn" aria-disabled="true">
+              {t('about.cvSoon')}
+            </span>
+          )
+        }
+        <a class="btn" href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">
+          <Icon name="linkedin" size={15} />
+          {t('about.linkedin')}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    align-items: center;
+    gap: clamp(40px, 7vw, 96px);
+    margin-top: 8px;
+  }
+
+  .photo {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    aspect-ratio: 4 / 5;
+  }
+
+  .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    background:
+      radial-gradient(90% 70% at 30% 20%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%),
+      var(--surface);
+  }
+
+  .placeholder span {
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 500;
+    color: var(--border-strong);
+  }
+
+  .text > p {
+    max-width: 54ch;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 1.0625rem;
+  }
+
+  .text > h2 + p {
+    margin-top: 32px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 36px;
+  }
+
+  @media (max-width: 800px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+
+    .photo {
+      max-width: 280px;
+    }
+  }
+</style>

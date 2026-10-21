@@ -1,0 +1,22 @@
+---
+// Página de contato, separada da inicial. Usada por src/pages/contato.astro (PT) e src/pages/en/contact.astro (EN).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from './Header.astro';
+import Contact from './Contact.astro';
+import Footer from './Footer.astro';
+import type { Lang } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<BaseLayout lang={lang} page="contact">
+  <Header lang={lang} page="contact" />
+  <main id="conteudo">
+    <Contact lang={lang} />
+  </main>
+  <Footer lang={lang} />
+</BaseLayout>

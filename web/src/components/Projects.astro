@@ -1,0 +1,227 @@
+---
+// Projetos pessoais ($ ls ~/github/): cards com imagem/GIF/vídeo, link ao vivo e link do repositório.
+// Lista em src/config.ts → site.projects. Com um projeto só, o card ocupa a largura toda (imagem ao lado do texto).
+import { site, type Lang } from '../config';
+import { useTranslations } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const projects = site.projects;
+const isVideo = (src: string) => /\.(mp4|webm)$/i.test(src);
+const host = (url: string | null, fallback: string) => (url ? new URL(url).host : fallback);
+---
+
+<div class="projects">
+  <p class="cmd">{t('projects.cmd')}</p>
+
+  <div class:list={['grid', { single: projects.length === 1 }]}>
+    {
+      projects.map((p) => (
+        <article class="project">
+          <figure class="window">
+            <div class="titlebar" aria-hidden="true">
+              <span class="dots"><i /><i /><i /></span>
+              <span class="mono url">{host(p.live, `${p.name}.local`)}</span>
+            </div>
+            {p.media &&
+              (isVideo(p.media.src) ? (
+                <video src={p.media.src} width={p.media.width} height={p.media.height} autoplay muted loop playsinline preload="metadata" aria-label={p.name} />
+              ) : (
+                <img src={p.media.src} width={p.media.width} height={p.media.height} alt={p.name} loading="lazy" decoding="async" />
+              ))}
+          </figure>
+
+          <div class="body">
+            <p class="mono head">
+              <span class="name">{p.name}/</span>
+              <span class={`status ${p.status}`}>[{t(p.status === 'live' ? 'projects.published' : 'projects.building')}]</span>
+            </p>
+            <p class="description">{p.description[lang]}</p>
+            <ul class="tags" aria-label={t('work.tags')}>
+              {p.stack.map((s) => (
+                <li>{s}</li>
+              ))}
+            </ul>
+            <div class="actions">
+              {p.live ? (
+                <a class="btn btn-primary" href={p.live} target="_blank" rel="noopener noreferrer">
+                  <Icon name="external" size={15} />
+                  {t('projects.live')}
+                </a>
+              ) : (
+                <span class="btn" aria-disabled="true">
+                  {t('projects.liveSoon')}
+                </span>
+              )}
+              <a class="btn" href={p.repo} target="_blank" rel="noopener noreferrer">
+                <Icon name="github" size={15} />
+                {t('projects.repo')}
+              </a>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <p class="more mono">
+    <a href={site.contact.github} target="_blank" rel="noopener noreferrer">
+      <Icon name="github" size={14} />
+      {t('projects.profile')}
+    </a>
+  </p>
+</div>
+
+<style>
+  .projects {
+    margin-top: 40px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    transition: border-color 0.2s;
+  }
+
+  .project:hover {
+    border-color: var(--border-strong);
+  }
+
+  /* Um projeto só: imagem à esquerda, texto à direita */
+  .single {
+    grid-template-columns: 1fr;
+  }
+
+  .single .project {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(24px, 4vw, 48px);
+    padding: clamp(16px, 2.5vw, 28px);
+  }
+
+  .window {
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--bg);
+  }
+
+  .titlebar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 30px;
+    padding-inline: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+
+  .url {
+    font-size: 0.6875rem;
+    color: var(--subtle);
+  }
+
+  .window img,
+  .window video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+  }
+
+  .name {
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: #7dd3fc;
+  }
+
+  .status {
+    font-size: 0.75rem;
+    color: #fbbf24;
+  }
+
+  .status.live {
+    color: var(--accent);
+  }
+
+  .description {
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .more {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-top: 16px;
+    font-size: 0.8125rem;
+  }
+
+  .more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .more a:hover {
+    color: var(--heading);
+  }
+
+  @media (max-width: 900px) {
+    .grid,
+    .single .project {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

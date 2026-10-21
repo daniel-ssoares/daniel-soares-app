@@ -1,0 +1,38 @@
+---
+// Página inicial completa. É usada pelas duas rotas: src/pages/index.astro (PT) e src/pages/en/index.astro (EN).
+// O formulário de contato NÃO fica aqui: ele tem página própria (ContactPage.astro).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import TrustStrip from './TrustStrip.astro';
+import Cases from './Cases.astro';
+import Services from './Services.astro';
+import About from './About.astro';
+import Footer from './Footer.astro';
+import type { Lang } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<BaseLayout lang={lang} page="home">
+  <Header lang={lang} page="home" />
+  <main id="conteudo" class="home">
+    <Hero lang={lang} />
+    <TrustStrip lang={lang} />
+    <Cases lang={lang} />
+    <Services lang={lang} />
+    <About lang={lang} />
+  </main>
+  <Footer lang={lang} />
+</BaseLayout>
+
+<style>
+  /* Respiro antes do rodapé, já que o contato saiu da home */
+  .home {
+    padding-bottom: var(--section-gap);
+  }
+</style>

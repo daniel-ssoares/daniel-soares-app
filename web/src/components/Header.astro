@@ -1,0 +1,161 @@
+---
+// Menu fixo no topo: logo com cursor piscando, links das seções, seletor PT / EN e botão "vamos conversar".
+// O botão leva para a página de contato (/contato/ ou /en/contact/).
+import type { Lang } from '../config';
+import { routes, useTranslations, type Page } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  page: Page;
+}
+
+const { lang, page } = Astro.props;
+const t = useTranslations(lang);
+const home = routes.home[lang];
+const contact = routes.contact[lang];
+---
+
+<header class="header">
+  <nav class="container nav" aria-label={t('nav.aria')}>
+    <a class="logo mono" href={home} aria-label="Daniel Soares — início">
+      ~/daniel-soares<span class="cursor" aria-hidden="true"></span>
+    </a>
+
+    <ul class="links mono">
+      <li><a href={`${home}#trabalhos`}>{t('nav.work')}</a></li>
+      <li><a href={`${home}#servicos`}>{t('nav.services')}</a></li>
+      <li><a href={`${home}#sobre`}>{t('nav.about')}</a></li>
+      <!-- Só aparece no celular, quando o botão "vamos conversar" não cabe -->
+      <li class="contact-link"><a href={contact}>{t('nav.contact')}</a></li>
+    </ul>
+
+    <!-- O seletor de idioma mantém a mesma página: /contato/ ↔ /en/contact/ -->
+    <div class="lang mono" role="group" aria-label={t('nav.lang')}>
+      <a href={routes[page].pt} hreflang="pt-BR" lang="pt-BR" aria-current={lang === 'pt' ? 'true' : undefined}>PT</a>
+      <span aria-hidden="true">/</span>
+      <a href={routes[page].en} hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+    </div>
+
+    <a class="btn btn-primary cta" href={contact} aria-current={page === 'contact' ? 'page' : undefined}>
+      {t('nav.cta')}
+    </a>
+  </nav>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    height: 64px;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--heading);
+    text-decoration: none;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 1.1em;
+    margin-left: 3px;
+    background: var(--accent);
+    animation: blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .links {
+    display: flex;
+    gap: 24px;
+    margin: 0 0 0 auto;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+  }
+
+  .links a,
+  .lang a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .links a:hover,
+  .lang a:hover {
+    color: var(--heading);
+  }
+
+  .lang {
+    display: flex;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--border-strong);
+  }
+
+  .lang a[aria-current='true'] {
+    color: var(--accent);
+  }
+
+  .cta {
+    min-height: 36px;
+    padding-inline: 16px;
+    font-size: 0.875rem;
+  }
+
+  /* No celular os links vão para uma segunda linha, abaixo do logo */
+  @media (max-width: 720px) {
+    .nav {
+      flex-wrap: wrap;
+      gap: 0 16px;
+      height: auto;
+      padding-block: 12px 10px;
+    }
+
+    .lang {
+      margin-left: auto;
+    }
+
+    .links {
+      order: 3;
+      width: 100%;
+      margin: 10px 0 0;
+      gap: 20px;
+      font-size: 0.8125rem;
+    }
+  }
+
+  .contact-link {
+    display: none;
+  }
+
+  /* Em telas bem estreitas o botão não cabe: o contato vira um link na segunda linha */
+  @media (max-width: 420px) {
+    .cta {
+      display: none;
+    }
+
+    .contact-link {
+      display: list-item;
+    }
+  }
+</style>

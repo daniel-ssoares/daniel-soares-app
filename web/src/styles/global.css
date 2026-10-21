@@ -1,0 +1,233 @@
+/* Estilos globais: tokens de cor, tipografia e utilitários.
+   Estilos específicos de cada componente ficam dentro do próprio .astro (escopados). */
+
+:root {
+  --bg: #0e0f13;
+  --surface: #15171d;
+  --border: #23252d;
+  --border-strong: #2a2c35;
+  --text: #e9e9ee;
+  --heading: #ffffff;
+  --muted: #a2a4b0;
+  --subtle: #8d90a0;
+  /* Alternativas: #A78BFA (violeta), #7DD3FC (azul), #FBBF24 (âmbar) */
+  --accent: #7ee787;
+
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --container: 1120px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --section-gap: clamp(56px, 7vw, 96px);
+  --radius: 14px;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--heading);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--heading);
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1 em,
+h2 em {
+  font-style: italic;
+  color: var(--muted);
+}
+
+p {
+  margin: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-gap) 0;
+  scroll-margin-top: 72px;
+}
+
+/* No celular o menu tem duas linhas, então a âncora precisa de mais espaço */
+@media (max-width: 640px) {
+  .section {
+    scroll-margin-top: 104px;
+  }
+}
+
+.section-title {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  max-width: 18ch;
+}
+
+/* Rótulo de seção no estilo de comando de terminal: $ ls cases/ */
+.cmd {
+  display: inline-block;
+  margin-bottom: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--subtle);
+}
+
+.cmd::first-letter {
+  color: var(--accent);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Botões em pílula */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--heading);
+  font: 500 0.9375rem/1 var(--font-sans);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.btn:hover {
+  border-color: var(--subtle);
+}
+
+.btn-primary {
+  background: var(--heading);
+  border-color: var(--heading);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tags de tecnologia em fonte monoespaçada */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--heading);
+  color: var(--bg);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,299 @@
+---
+// Conteúdo da página de contato ($ dotnet run --project contato): links diretos + formulário que envia para POST /api/contato.
+// Fica numa página própria (ContactPage.astro), não na home.
+import { site, type Lang } from '../config';
+import { useTranslations } from '../i18n/ui';
+import Icon, { type IconName } from './Icon.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const { email, linkedin, github } = site.contact;
+
+const links: { label: string; icon: IconName; value: string; href: string }[] = [
+  { label: 'e-mail', icon: 'mail', value: email, href: `mailto:${email}` },
+  { label: 'linkedin', icon: 'linkedin', value: linkedin.replace('https://www.', ''), href: linkedin },
+  { label: 'github', icon: 'github', value: github.replace('https://', ''), href: github },
+];
+
+// Tipos de contato (mesmos valores aceitos pela API em ContactValidator.cs)
+const kinds = [
+  { value: 'project', label: t('contact.kind.project') },
+  { value: 'proposal', label: t('contact.kind.proposal') },
+  { value: 'other', label: t('contact.kind.other') },
+];
+---
+
+<section class="container contact" aria-labelledby="contact-title">
+  <span class="cmd">{t('contact.cmd')}</span>
+
+  <div class="layout">
+    <div>
+      <h1 id="contact-title" class="title">
+        {t('contact.title')} <em>{t('contact.titleItalic')}</em>
+      </h1>
+      <p class="text">{t('contact.text')}</p>
+
+      <ul class="links">
+        {
+          links.map((l) => (
+            <li>
+              <span class="mono key">
+                <Icon name={l.icon} size={15} />
+                {l.label}
+              </span>
+              <a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+                {l.value}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <form
+      class="form"
+      data-contact-form
+      data-lang={lang}
+      data-msg-sending={t('contact.sending')}
+      data-msg-success={t('contact.success')}
+      data-msg-error={t('contact.error')}
+      data-msg-rate={t('contact.rateLimited')}
+      data-msg-invalid={t('contact.invalid')}
+      novalidate
+    >
+      <label>
+        <span>{t('contact.name')}</span>
+        <input name="name" type="text" autocomplete="name" required maxlength="120" />
+      </label>
+      <label>
+        <span>{t('contact.email')}</span>
+        <input name="email" type="email" autocomplete="email" required maxlength="200" />
+      </label>
+
+      <fieldset class="kind">
+        <legend>{t('contact.kind')}</legend>
+        {
+          kinds.map((k, i) => (
+            <label class="chip">
+              <input type="radio" name="kind" value={k.value} required checked={i === 0} />
+              <span class="mono">{k.label}</span>
+            </label>
+          ))
+        }
+      </fieldset>
+
+      <label>
+        <span>{t('contact.message')}</span>
+        <textarea name="message" rows="5" required minlength="10" maxlength="2000"></textarea>
+      </label>
+
+      <!-- Honeypot anti-spam: invisível para pessoas; robôs costumam preencher -->
+      <label class="hp" aria-hidden="true">
+        Website <input name="website" type="text" tabindex="-1" autocomplete="off" />
+      </label>
+
+      <button class="btn btn-primary" type="submit">{t('contact.send')}</button>
+      <p class="status mono" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<script>
+  import { setupContactForm } from '../scripts/contact-form';
+
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  if (form) setupContactForm(form);
+</script>
+
+<style>
+  .contact {
+    padding-block: clamp(40px, 6vw, 72px) var(--section-gap);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(48px, 7vw, 96px);
+  }
+
+  .title {
+    font-size: clamp(2.75rem, 6vw, 4.5rem);
+  }
+
+  .text {
+    max-width: 40ch;
+    margin-top: 24px;
+    color: var(--muted);
+  }
+
+  .links {
+    margin: 40px 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .links li {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .key {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: var(--subtle);
+  }
+
+  .links a {
+    overflow-wrap: anywhere;
+    color: var(--heading);
+    text-decoration: none;
+  }
+
+  .links a:hover {
+    color: var(--accent);
+  }
+
+  .form {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .kind {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .kind legend {
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 0;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  /* Opções de tipo como pílulas; o rádio fica invisível mas continua acessível pelo teclado */
+  .chip {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .chip span {
+    padding: 8px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    transition:
+      border-color 0.15s,
+      color 0.15s;
+  }
+
+  .chip input:checked + span {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .chip input:focus-visible + span {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  label:not(.chip) {
+    display: grid;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 1rem;
+    resize: vertical;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .form .btn {
+    justify-self: start;
+  }
+
+  .form .btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .status {
+    min-height: 1.4em;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .status[data-kind='success'] {
+    color: var(--accent);
+  }
+
+  .status[data-kind='error'] {
+    color: #fca5a5;
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .form {
+      padding: 20px;
+    }
+
+    .links li {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+  }
+</style>

@@ -1,0 +1,5 @@
+# Fim de linha LF no repositório (evita diferenças entre Windows e o Linux do CI/Docker)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.mp4 binary

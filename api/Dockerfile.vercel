@@ -1,0 +1,19 @@
+# Imagem da API para o Container Runtime da Vercel.
+# O contexto de build é a pasta api/ (definida como "root" do serviço no vercel.json).
+
+# 1) Build: SDK do .NET 10 restaura e publica a API
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY Portfolio.Api/Portfolio.Api.csproj Portfolio.Api/
+RUN dotnet restore Portfolio.Api/Portfolio.Api.csproj
+COPY Portfolio.Api/ Portfolio.Api/
+RUN dotnet publish Portfolio.Api/Portfolio.Api.csproj -c Release -o /app --no-restore
+
+# 2) Runtime: imagem "chiseled" (mínima, sem shell, usuário não-root) só com o ASP.NET e a API publicada
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled
+WORKDIR /app
+COPY --from=build /app .
+ENV PORT=80 \
+    DOTNET_EnableDiagnostics=0
+EXPOSE 80
+ENTRYPOINT ["dotnet", "Portfolio.Api.dll"]

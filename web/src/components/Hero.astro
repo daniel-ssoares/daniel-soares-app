@@ -1,0 +1,72 @@
+---
+// Hero: $ whoami, título, resumo, botões e o vídeo de apresentação à direita.
+// No celular empilha: texto em cima, vídeo embaixo.
+import type { Lang } from '../config';
+import { routes, useTranslations } from '../i18n/ui';
+import VideoPlayer from './VideoPlayer.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="container hero" aria-labelledby="hero-title">
+  <div class="text">
+    <span class="cmd">{t('hero.cmd')}</span>
+    <h1 id="hero-title">
+      {t('hero.title')} <em>{t('hero.titleItalic')}</em>
+    </h1>
+    <p class="summary">{t('hero.summary')}</p>
+
+    <div class="actions">
+      <a class="btn btn-primary" href="#trabalhos">{t('hero.ctaWork')}</a>
+      <a class="btn" href={routes.contact[lang]}>{t('hero.ctaProject')}</a>
+    </div>
+  </div>
+
+  <div class="media">
+    <VideoPlayer lang={lang} />
+  </div>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    align-items: center;
+    gap: clamp(40px, 6vw, 80px);
+    padding-block: clamp(40px, 6vw, 80px) 0;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 4.6vw, 3.75rem);
+  }
+
+  h1 em {
+    display: block;
+    margin-top: 0.1em;
+  }
+
+  .summary {
+    max-width: 46ch;
+    margin-top: 28px;
+    color: var(--muted);
+    font-size: 1.0625rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 36px;
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
