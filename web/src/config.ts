@@ -47,7 +47,7 @@ export const site = {
         en: 'This portfolio: a static Astro site with a containerized .NET 10 API, PostgreSQL on Supabase, xUnit tests and CI on GitHub Actions.',
       },
       media: { src: '/projects/daniel-soares-app.webp', width: 1440, height: 900 },
-      live: null,
+      live: 'https://daniel-soares-app.vercel.app',
       repo: 'https://github.com/daniel-ssoares/daniel-soares-app',
       status: 'building',
       stack: ['Astro', 'TypeScript', '.NET 10', 'PostgreSQL', 'Docker'],

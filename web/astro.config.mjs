@@ -3,8 +3,8 @@ import { defineConfig } from 'astro/config';
 
 // Configuração do Astro: https://docs.astro.build/en/reference/configuration-reference/
 export default defineConfig({
-  // Troque pelo domínio definitivo quando ele for registrado (ex.: https://danielsoares.dev)
-  site: 'https://daniel-soares.vercel.app',
+  // Endereço público do site (usado em canonical, hreflang e Open Graph)
+  site: 'https://daniel-soares-app.vercel.app',
 
   // i18n nativo: português na raiz (/) e inglês em /en/
   i18n: {
