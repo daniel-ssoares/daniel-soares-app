@@ -49,7 +49,7 @@ export const site = {
       media: { src: '/projects/daniel-soares-app.webp', width: 1440, height: 900 },
       live: 'https://daniel-soares-app.vercel.app',
       repo: 'https://github.com/daniel-ssoares/daniel-soares-app',
-      status: 'building',
+      status: 'live',
       stack: ['Astro', 'TypeScript', '.NET 10', 'PostgreSQL', 'Docker'],
     },
   ] satisfies Project[] as Project[],
