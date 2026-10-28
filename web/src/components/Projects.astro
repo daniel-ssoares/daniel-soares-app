@@ -1,7 +1,11 @@
 ---
-// Projetos pessoais ($ ls ~/github/): cards com imagem/GIF/vídeo, link ao vivo e link do repositório.
-// Lista em src/config.ts → site.projects. Com um projeto só, o card ocupa a largura toda (imagem ao lado do texto).
-import { site, type Lang } from '../config';
+// Projetos pessoais ($ ls ~/github/): cards com imagens, destaques, link ao vivo e link do repositório.
+// Lista em src/config.ts → site.projects. Cada card ocupa a largura toda: imagens de um lado, texto do outro.
+// Imagens (componente <Image> do Astro: otimiza, carrega sob demanda e reserva o espaço com width/height):
+// - verticais (prints de celular): molduras de celular lado a lado, com rolagem horizontal se não couberem;
+// - horizontais: moldura de navegador com a capa e, se houver, miniaturas da galeria embaixo.
+import { Image } from 'astro:assets';
+import { site, type Lang, type Project } from '../config';
 import { useTranslations } from '../i18n/ui';
 import Icon from './Icon.astro';
 
@@ -12,60 +16,95 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const projects = site.projects;
-const isVideo = (src: string) => /\.(mp4|webm)$/i.test(src);
 const host = (url: string | null, fallback: string) => (url ? new URL(url).host : fallback);
+const isPortrait = (p: Project) => p.images.length > 0 && p.images[0].src.height > p.images[0].src.width;
 ---
 
 <div class="projects">
   <p class="cmd">{t('projects.cmd')}</p>
 
-  <div class:list={['grid', { single: projects.length === 1 }]}>
+  <div class="list">
     {
-      projects.map((p) => (
-        <article class="project">
-          <figure class="window">
-            <div class="titlebar" aria-hidden="true">
-              <span class="dots"><i /><i /><i /></span>
-              <span class="mono url">{host(p.live, `${p.name}.local`)}</span>
-            </div>
-            {p.media &&
-              (isVideo(p.media.src) ? (
-                <video src={p.media.src} width={p.media.width} height={p.media.height} autoplay muted loop playsinline preload="metadata" aria-label={p.name} />
+      projects.map((p) => {
+        const [cover, ...gallery] = p.images;
+        const label = p.title?.[lang] ?? p.name;
+        return (
+          <article class:list={['project', { 'no-media': !cover }]}>
+            {cover &&
+              (isPortrait(p) ? (
+                <ul class="phones" tabindex="0" aria-label={`${t('projects.screens')}: ${label}`}>
+                  {p.images.map((img) => (
+                    <li class="phone">
+                      <Image src={img.src} alt={img.alt[lang]} widths={[240, 480]} sizes="(max-width: 900px) 45vw, 220px" />
+                    </li>
+                  ))}
+                </ul>
               ) : (
-                <img src={p.media.src} width={p.media.width} height={p.media.height} alt={p.name} loading="lazy" decoding="async" />
+                <div class="media">
+                  <figure class="window">
+                    <div class="titlebar" aria-hidden="true">
+                      <span class="dots">
+                        <i />
+                        <i />
+                        <i />
+                      </span>
+                      <span class="mono url">{host(p.live, `${p.name}.local`)}</span>
+                    </div>
+                    <Image src={cover.src} alt={cover.alt[lang]} widths={[640, 960, 1440]} sizes="(max-width: 900px) 100vw, 620px" />
+                  </figure>
+                  {gallery.length > 0 && (
+                    <ul class="thumbs">
+                      {gallery.map((img) => (
+                        <li>
+                          <Image src={img.src} alt={img.alt[lang]} widths={[320, 640]} sizes="(max-width: 900px) 33vw, 200px" />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               ))}
-          </figure>
 
-          <div class="body">
-            <p class="mono head">
-              <span class="name">{p.name}/</span>
-              <span class={`status ${p.status}`}>[{t(p.status === 'live' ? 'projects.published' : 'projects.building')}]</span>
-            </p>
-            <p class="description">{p.description[lang]}</p>
-            <ul class="tags" aria-label={t('work.tags')}>
-              {p.stack.map((s) => (
-                <li>{s}</li>
-              ))}
-            </ul>
-            <div class="actions">
-              {p.live ? (
-                <a class="btn btn-primary" href={p.live} target="_blank" rel="noopener noreferrer">
-                  <Icon name="external" size={15} />
-                  {t('projects.live')}
-                </a>
-              ) : (
-                <span class="btn" aria-disabled="true">
-                  {t('projects.liveSoon')}
-                </span>
+            <div class="body">
+              <p class="mono head">
+                <span class="name">{p.name}/</span>
+                <span class={`status ${p.status}`}>[{t(p.status === 'live' ? 'projects.published' : 'projects.building')}]</span>
+              </p>
+              {p.title && <h3>{p.title[lang]}</h3>}
+              <p class="description">{p.description[lang]}</p>
+              {p.highlights && (
+                <ul class="highlights" aria-label={t('projects.highlights')}>
+                  {p.highlights[lang].map((h) => (
+                    <li>{h}</li>
+                  ))}
+                </ul>
               )}
-              <a class="btn" href={p.repo} target="_blank" rel="noopener noreferrer">
-                <Icon name="github" size={15} />
-                {t('projects.repo')}
-              </a>
+              <ul class="tags" aria-label={t('work.tags')}>
+                {p.stack.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+              <div class="actions">
+                {p.live ? (
+                  <a class="btn btn-primary" href={p.live} target="_blank" rel="noopener noreferrer">
+                    <Icon name="external" size={15} />
+                    {t('projects.live')}
+                  </a>
+                ) : (
+                  <span class="btn" aria-disabled="true">
+                    {t('projects.liveSoon')}
+                  </span>
+                )}
+                {p.repo && (
+                  <a class="btn" href={p.repo} target="_blank" rel="noopener noreferrer">
+                    <Icon name="github" size={15} />
+                    {t('projects.repo')}
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        </article>
-      ))
+          </article>
+        );
+      })
     }
   </div>
 
@@ -82,17 +121,18 @@ const host = (url: string | null, fallback: string) => (url ? new URL(url).host 
     margin-top: 40px;
   }
 
-  .grid {
+  .list {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
   }
 
+  /* Card: imagens à esquerda, texto à direita */
   .project {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    padding: 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(24px, 4vw, 48px);
+    padding: clamp(16px, 2.5vw, 28px);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--surface);
@@ -103,17 +143,49 @@ const host = (url: string | null, fallback: string) => (url ? new URL(url).host 
     border-color: var(--border-strong);
   }
 
-  /* Um projeto só: imagem à esquerda, texto à direita */
-  .single {
+  .no-media {
     grid-template-columns: 1fr;
   }
 
-  .single .project {
+  /* Prints verticais: molduras de celular lado a lado */
+  .phones {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(24px, 4vw, 48px);
-    padding: clamp(16px, 2.5vw, 28px);
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(150px, 1fr);
+    gap: 12px;
+    margin: 0;
+    padding: 4px 4px 12px;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  .phones:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .phone {
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 18px;
+    background: var(--bg);
+    box-shadow: 0 20px 40px -24px rgb(0 0 0 / 0.8);
+    scroll-snap-align: start;
+  }
+
+  .phone :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Imagens horizontais: moldura de navegador */
+  .media {
+    display: grid;
+    gap: 10px;
   }
 
   .window {
@@ -150,13 +222,30 @@ const host = (url: string | null, fallback: string) => (url ? new URL(url).host 
     color: var(--subtle);
   }
 
-  .window img,
-  .window video {
+  .window :global(img),
+  .thumbs :global(img) {
+    display: block;
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 10;
     object-fit: cover;
     object-position: top;
+  }
+
+  .thumbs {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .thumbs li {
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
   }
 
   .body {
@@ -187,8 +276,36 @@ const host = (url: string | null, fallback: string) => (url ? new URL(url).host 
     color: var(--accent);
   }
 
+  h3 {
+    font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+    line-height: 1.15;
+  }
+
   .description {
     color: var(--muted);
+  }
+
+  .highlights {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9375rem;
+  }
+
+  .highlights li {
+    position: relative;
+    padding-left: 1.5em;
+    color: var(--text);
+  }
+
+  .highlights li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-family: var(--font-mono);
   }
 
   .actions {
@@ -219,8 +336,7 @@ const host = (url: string | null, fallback: string) => (url ? new URL(url).host 
   }
 
   @media (max-width: 900px) {
-    .grid,
-    .single .project {
+    .project {
       grid-template-columns: 1fr;
     }
   }

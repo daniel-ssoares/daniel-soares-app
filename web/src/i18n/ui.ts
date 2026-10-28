@@ -68,6 +68,8 @@ const pt = {
   'projects.liveSoon': 'Deploy em breve',
   'projects.repo': 'Repositório',
   'projects.profile': 'Ver perfil no GitHub',
+  'projects.highlights': 'Destaques',
+  'projects.screens': 'Telas do app',
 
   'services.cmd': '$ ls servicos/',
   'services.title': 'O que posso',
@@ -184,6 +186,8 @@ const en: Record<UiKey, string> = {
   'projects.liveSoon': 'Deploy coming soon',
   'projects.repo': 'Repository',
   'projects.profile': 'View GitHub profile',
+  'projects.highlights': 'Highlights',
+  'projects.screens': 'App screens',
 
   'services.cmd': '$ ls services/',
   'services.title': 'What I can',
