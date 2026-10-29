@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 // Configuração do Astro: https://docs.astro.build/en/reference/configuration-reference/
 export default defineConfig({
@@ -16,6 +17,16 @@ export default defineConfig({
   // Barra de ferramentas do Astro que aparece no rodapé durante o `npm run dev`
   // (nunca vai para o site publicado). Desligada para não confundir com o design.
   devToolbar: { enabled: false },
+
+  // Gera /sitemap-index.xml com as páginas nos dois idiomas (ligadas entre si por hreflang)
+  integrations: [
+    sitemap({
+      i18n: {
+        defaultLocale: 'pt',
+        locales: { pt: 'pt-BR', en: 'en' },
+      },
+    }),
+  ],
 
   vite: {
     server: {

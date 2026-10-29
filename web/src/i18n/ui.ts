@@ -1,7 +1,5 @@
 // Todos os textos da interface, em português e inglês.
 // Para adicionar um texto: crie a chave em `pt` e repita em `en` (o TypeScript avisa se faltar).
-//
-// Trabalhos para clientes são descritos sem nomes (confidencialidade); usar descrições.
 
 import type { Lang } from '../config';
 
@@ -12,6 +10,7 @@ const pt = {
 
   'meta.contactTitle': 'Contato — Daniel Soares',
   'meta.contactDescription': 'Fale com Daniel Soares por formulário, e-mail, LinkedIn ou GitHub.',
+  'meta.ogImageAlt': 'Daniel Soares, desenvolvedor full stack: sites, sistemas e apps que funcionam de verdade, da interface ao banco de dados.',
 
   'nav.work': './trabalhos',
   'nav.services': './serviços',
@@ -120,6 +119,14 @@ const pt = {
   'contact.err.messageLong': 'A mensagem passou do limite em {n} caracteres (máximo 2000).',
 
   'footer.rights': '© 2026 Daniel Soares',
+
+  // Página 404 (uma só para os dois idiomas: o texto em inglês aparece logo abaixo)
+  'notFound.metaTitle': 'Página não encontrada — Daniel Soares',
+  'notFound.error': 'bash: cd: arquivo ou diretório inexistente',
+  'notFound.title': 'Página não',
+  'notFound.titleItalic': 'encontrada.',
+  'notFound.text': 'O endereço pode ter mudado ou estar com algum erro de digitação.',
+  'notFound.home': 'Voltar ao início',
 };
 
 export type UiKey = keyof typeof pt;
@@ -131,6 +138,7 @@ const en: Record<UiKey, string> = {
 
   'meta.contactTitle': 'Contact — Daniel Soares',
   'meta.contactDescription': 'Get in touch with Daniel Soares via the form, email, LinkedIn or GitHub.',
+  'meta.ogImageAlt': 'Daniel Soares, full-stack developer: websites, systems and apps that actually work, from the front end to the database.',
 
   'nav.work': './work',
   'nav.services': './services',
@@ -236,6 +244,13 @@ const en: Record<UiKey, string> = {
   'contact.err.messageLong': 'Your message is {n} characters over the limit (maximum 2,000).',
 
   'footer.rights': '© 2026 Daniel Soares',
+
+  'notFound.metaTitle': 'Page not found — Daniel Soares',
+  'notFound.error': 'bash: cd: no such file or directory',
+  'notFound.title': 'Page not',
+  'notFound.titleItalic': 'found.',
+  'notFound.text': 'The address may have changed or there may be a typo.',
+  'notFound.home': 'Back to home',
 };
 
 const ui: Record<Lang, Record<UiKey, string>> = { pt, en };

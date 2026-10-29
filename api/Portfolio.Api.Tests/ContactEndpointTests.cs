@@ -28,6 +28,7 @@ public class ContactEndpointTests(PortfolioApiFactory factory) : IClassFixture<P
         Assert.Equal("Ana Souza", saved.Name);
         Assert.Equal("project", saved.Kind);
         Assert.Equal("pt", saved.Lang);
+        Assert.Contains(factory.Notifier.Sent, m => m.Email == "salva@empresa.com");
     }
 
     [Fact]
@@ -39,6 +40,7 @@ public class ContactEndpointTests(PortfolioApiFactory factory) : IClassFixture<P
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains("email", await response.Content.ReadAsStringAsync());
+        Assert.DoesNotContain(factory.Notifier.Sent, m => m.Email == "invalido");
     }
 
     [Fact]
@@ -50,6 +52,20 @@ public class ContactEndpointTests(PortfolioApiFactory factory) : IClassFixture<P
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
         Assert.False(await factory.WithDbAsync(db => db.ContactMessages.AnyAsync(m => m.Email == "robo@spam.com")));
+        Assert.DoesNotContain(factory.Notifier.Sent, m => m.Email == "robo@spam.com");
+    }
+
+    [Fact]
+    public async Task Message_is_saved_even_when_notification_fails()
+    {
+        using var failing = new PortfolioApiFactory();
+        failing.Notifier.Fail = true;
+        var client = failing.CreateClientWithIp("10.0.0.5");
+
+        var response = await client.PostAsJsonAsync("/api/contato", Message("semaviso@empresa.com"));
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.True(await failing.WithDbAsync(db => db.ContactMessages.AnyAsync(m => m.Email == "semaviso@empresa.com")));
     }
 
     [Fact]

@@ -44,6 +44,7 @@ cd web && npm run build
 | Variável | Uso |
 |---|---|
 | `ConnectionStrings__Supabase` | connection string do Postgres (API) |
+| `Resend__ApiKey`, `Resend__To`, `Resend__From` | aviso por e-mail de mensagens do formulário (API, opcional; `From` padrão: `onboarding@resend.dev`) |
 | `PUBLIC_VIDEO_MP4`, `PUBLIC_VIDEO_WEBM`, `PUBLIC_VIDEO_POSTER` | vídeo de apresentação (site) |
 | `PUBLIC_PHOTO` | foto (site) |
 | `PUBLIC_CV_PT`, `PUBLIC_CV_EN` | currículo (site) |

@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://daniel-soares-app.vercel.app/sitemap-index.xml

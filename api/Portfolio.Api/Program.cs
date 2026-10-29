@@ -2,6 +2,7 @@ using Portfolio.Api.Cases;
 using Portfolio.Api.Contact;
 using Portfolio.Api.Data;
 using Portfolio.Api.Http;
+using Portfolio.Api.Notifications;
 using Portfolio.Api.Visits;
 
 // API do portfólio (.NET 10 Minimal API).
@@ -23,6 +24,9 @@ builder.Services.AddNpgsql<PortfolioDbContext>(connectionString);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddPortfolioRateLimits();
+
+// Aviso por e-mail de mensagens novas (Resend). Sem Resend__ApiKey e Resend__To, a mensagem só é gravada.
+builder.Services.AddContactNotifier(builder.Configuration);
 
 var app = builder.Build();
 

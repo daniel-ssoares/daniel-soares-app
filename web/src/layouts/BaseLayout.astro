@@ -7,18 +7,21 @@ import { routes, useTranslations, type Page } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
-  page: Page;
+  /** Sem page (ex.: 404): sem canonical/hreflang e fora dos buscadores */
+  page?: Page;
 }
 
 const { lang, page } = Astro.props;
 const t = useTranslations(lang);
 
-const title = page === 'contact' ? t('meta.contactTitle') : t('meta.title');
+const title = page === 'contact' ? t('meta.contactTitle') : page ? t('meta.title') : t('notFound.metaTitle');
 const description = page === 'contact' ? t('meta.contactDescription') : t('meta.description');
 
-const canonical = new URL(routes[page][lang], Astro.site);
-const altPt = new URL(routes[page].pt, Astro.site);
-const altEn = new URL(routes[page].en, Astro.site);
+const canonical = page && new URL(routes[page][lang], Astro.site);
+const altPt = page && new URL(routes[page].pt, Astro.site);
+const altEn = page && new URL(routes[page].en, Astro.site);
+// Imagem de prévia ao compartilhar o link (1200×630, em public/og/)
+const ogImage = new URL(`/og/og-${lang}.png`, Astro.site);
 ---
 
 <!doctype html>
@@ -31,16 +34,32 @@ const altEn = new URL(routes[page].en, Astro.site);
     <meta name="theme-color" content="#0E0F13" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="pt-BR" href={altPt} />
-    <link rel="alternate" hreflang="en" href={altEn} />
-    <link rel="alternate" hreflang="x-default" href={altPt} />
+    {
+      page ? (
+        <>
+          <link rel="canonical" href={canonical} />
+          <link rel="alternate" hreflang="pt-BR" href={altPt} />
+          <link rel="alternate" hreflang="en" href={altEn} />
+          <link rel="alternate" hreflang="x-default" href={altPt} />
+        </>
+      ) : (
+        <meta name="robots" content="noindex" />
+      )
+    }
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Daniel Soares" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {canonical && <meta property="og:url" content={canonical} />}
     <meta property="og:locale" content={lang === 'pt' ? 'pt_BR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'pt' ? 'en_US' : 'pt_BR'} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t('meta.ogImageAlt')} />
+    <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Fontes: Instrument Serif (títulos), Inter (texto), JetBrains Mono (detalhes de terminal) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
