@@ -3,7 +3,11 @@
   "services": {
     "web": {
       "root": "web/",
-      "framework": "astro"
+      "framework": "astro",
+      "routes": [
+        { "handle": "filesystem" },
+        { "src": "/(.*)", "status": 404, "dest": "/404.html" }
+      ]
     },
     "api": {
       "root": "api/",
